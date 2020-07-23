@@ -60,7 +60,8 @@ public:
         return w_*h_;
     }
 
-private:
+//private:
+public:
     std::vector<std::vector<T>> data_;
     int w_, h_;
     int dim_;

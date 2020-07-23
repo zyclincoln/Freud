@@ -13,14 +13,9 @@ Simulator::Simulator(int width, int height, shared_ptr<Parameter> parameter)
       d_source_(vector<Field<double, 1>>(3, Field<double, 1>(width, height)))
 {
     for(int y = 100; y < 110; ++y){
-        for(int x = 55; x < 75; ++x){
+        for(int x = 60; x < 70; ++x){
             v_source_(x, y, 1) = -0.2;
-        }
-        for(int x = 55; x < 70; ++x){
             d_source_[0](x, y, 0) = 0.8;
-        }
-        for(int x = 60; x < 75; ++x){
-            d_source_[1](x, y, 0) = 0.8;
         }
     }
 }
@@ -32,8 +27,7 @@ void Simulator::run(){
 
         // v step
         add_source(v_, v_source_, parameter_->dt);
-        vorticity_confinement(v_, parameter_->vorticity);
-
+//        vorticity_confinement(v_, parameter_->vorticity);
         diffuse(v_, parameter_->visc, parameter_->dt);
         Field<double, 2> temp_v = v_;
         advect(v_, temp_v, temp_v, parameter_->dt);

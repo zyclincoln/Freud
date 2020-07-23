@@ -8,6 +8,7 @@
 #ifndef OPERATOR_HPP
 #define OPERATOR_HPP
 #include <functional>
+#include <QDebug>
 
 #include "Field.h"
 
@@ -177,7 +178,7 @@ void diffuse(Field<T, Dim>& ops, double df, double dt){
 
     // Gauss-Seidel iteration
     Field<T, Dim> temp(width, height);
-    for(int i = 0; i < 20; ++i){
+    for(int i = 0; i < 30; ++i){
         for(int d = 0; d < Dim; ++d){
             for(int y = 1; y < height-1; ++y){
                 for(int x = 1; x < width-1; ++x){
@@ -198,19 +199,18 @@ void advect(Field<T, Dim>& target, Field<T, Dim>& source, Field<T, 2>& driver, d
     double rx0, rx1, ry0, ry1;
     double new_x, new_y;
     int width = source.get_width(), height = source.get_height();
-
     dt = dt * width;
-    for(int d = 0; d < Dim; ++d){
-        for(int y = 1; y < height-1; ++y){
-            for(int x = 1; x < width-1; ++x){
-                // bilinear interpolate
-                new_x = x - dt*driver(x, y, 0); new_y = y - dt*driver(x, y, 1);
-                if(new_x < 0.5) new_x = 0.5; if(new_x > width-1.5) new_x = width-1.5;
-                if(new_y < 0.5) new_y = 0.5; if(new_y > height-1.5) new_y = height-1.5;
-                i0 = (int)new_x; i1 = i0+1;
-                j0 = (int)new_y; j1 = j0+1;
-                rx1 = new_x - i0; rx0 = 1 - rx1;
-                ry1 = new_y - j0; ry0 = 1 - ry1;
+    for(int y = 1; y < height-1; ++y){
+        for(int x = 1; x < width-1; ++x){
+            // bilinear interpolate
+            new_x = x - dt*driver(x, y, 0); new_y = y - dt*driver(x, y, 1);
+            if(new_x < 0.5) new_x = 0.5; if(new_x > width-1.5) new_x = width-1.5;
+            if(new_y < 0.5) new_y = 0.5; if(new_y > height-1.5) new_y = height-1.5;
+            i0 = (int)new_x; i1 = i0+1;
+            j0 = (int)new_y; j1 = j0+1;
+            rx1 = new_x - i0; rx0 = 1 - rx1;
+            ry1 = new_y - j0; ry0 = 1 - ry1;
+            for(int d = 0; d< Dim; ++d){
                 target(x, y, d) = rx0*(ry0*source(i0, j0, d) + ry1*source(i0, j1, d)) +
                                   rx1*(ry0*source(i1, j0, d) + ry1*source(i1, j1, d));
             }
