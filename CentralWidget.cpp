@@ -28,7 +28,7 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
     integrate_box_layout->addWidget(use_runge_kutta_);
     integrate_box->setLayout(integrate_box_layout);
 
-    color_picker_ = new QPushButton();
+    color_picker_ = new ColorPicker();
 
     QGroupBox* color_box = new QGroupBox("颜色 (color)",this);
     QVBoxLayout* color_layout = new QVBoxLayout();

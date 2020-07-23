@@ -12,6 +12,7 @@
 #include "Simulator.h"
 #include "Parameter.h"
 #include "Drawer.h"
+#include "ColorPicker.h"
 
 class CentralWidget : public QWidget
 {
@@ -41,7 +42,7 @@ private:
     QCheckBox* use_runge_kutta_;
 
     // choose color
-    QPushButton* color_picker_;
+    ColorPicker* color_picker_;
 
     // setup parameter
     QSlider* time_step_slider_;

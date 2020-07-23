@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     CentralWidget.cpp \
+    ColorPicker.cpp \
     Drawer.cpp \
     Simulator.cpp \
     main.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
 
 HEADERS += \
     CentralWidget.h \
+    ColorPicker.h \
     Drawer.h \
     Field.h \
     Operator.hpp \
