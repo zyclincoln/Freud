@@ -8,11 +8,13 @@
 #include <QSlider>
 #include <QThread>
 #include <memory>
+#include <queue>
 
 #include "Simulator.h"
 #include "Parameter.h"
 #include "Drawer.h"
 #include "ColorPicker.h"
+#include "BoundaryCondition.h"
 
 class CentralWidget : public QWidget
 {
@@ -26,10 +28,13 @@ public:
 public slots:
     void start();
     void next();
+    void add_boundary(int x, int y, double dx, double dy);
 signals:
 
 
 private:
+    std::vector<std::shared_ptr<BoundaryCondition>> conditions;
+
     Simulator* simulator_;
     Drawer* drawer_;
     std::shared_ptr<Parameter> parameter_;

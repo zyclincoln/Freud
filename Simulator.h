@@ -19,6 +19,13 @@ public:
     }
     void run();
 
+    std::vector<Field<double, 1>>& get_d_source(){
+        return d_source_;
+    }
+    Field<double, 2>& get_v_source(){
+        return v_source_;
+    }
+
 signals:
     void update_finish();
 

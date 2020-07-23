@@ -95,7 +95,7 @@ template <typename T, size_t Dim>
 void add_source(Field<T, Dim>& target, Field<T, Dim>& source, double dt){
     for(int d = 0; d < Dim; ++d){
         for(int i = 0; i < target.get_size(); ++i){
-            target(i, d) += source(i, d) * dt;
+            target(i, d) += source(i, d);
         }
     }
 }

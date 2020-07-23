@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <QPoint>
 
 #include "Field.h"
 
@@ -24,17 +25,20 @@ public slots:
 
 signals:
     void draw_finish();
-
+    void add_boundary(int x, int y, double dx, double dy);
 protected:
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
     void initializeGL() override;
     void paintGL() override;
-signals:
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
     const std::vector<Field<double, 1>>& d_field_;
     std::vector<Field<double, 1>> d_field_buffer_;
+    QPoint last_pos_;
+    bool record_ = false;
 };
 
 #endif // DRAWER_H

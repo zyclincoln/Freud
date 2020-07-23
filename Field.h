@@ -46,6 +46,13 @@ public:
     }
 
     inline
+    void clear(){
+        for(int i = 0; i < dim_; ++i){
+            data_[i].assign(data_[i].size(), 0);
+        }
+    }
+
+    inline
     int get_width() const{
         return w_;
     }

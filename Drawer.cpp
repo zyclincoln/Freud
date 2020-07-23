@@ -1,4 +1,6 @@
 #include <QDebug>
+#include <QMouseEvent>
+
 #include "Drawer.h"
 
 using namespace std;
@@ -12,6 +14,24 @@ Drawer::Drawer(const vector<Field<double, 1>>& d_field, QWidget *parent) :
 Drawer::~Drawer()
 {
 
+}
+
+void Drawer::mousePressEvent(QMouseEvent *event){
+    last_pos_ = event->pos();
+    record_ = true;
+}
+
+void Drawer::mouseReleaseEvent(QMouseEvent *event){
+    record_ = false;
+    QPoint cur_pos = event->pos();
+
+    // calculate grid
+    int x = cur_pos.x()*1.0/this->width() * d_field_[0].get_width();
+    int y = cur_pos.y()*1.0/this->height() * d_field_[0].get_height();
+
+    double dx = (cur_pos.x() - last_pos_.x())*1.0/this->width();
+    double dy = (cur_pos.y() - last_pos_.y())*1.0/this->height();
+    emit add_boundary(x, y, dx, dy);
 }
 
 QSize Drawer::minimumSizeHint() const

@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    BallBoundary.cpp \
     CentralWidget.cpp \
     ColorPicker.cpp \
     Drawer.cpp \
@@ -24,6 +25,8 @@ SOURCES += \
     Window.cpp
 
 HEADERS += \
+    BallBoundary.h \
+    BoundaryCondition.h \
     CentralWidget.h \
     ColorPicker.h \
     Drawer.h \

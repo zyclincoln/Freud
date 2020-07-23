@@ -2,8 +2,10 @@
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <QLabel>
+#include <QDebug>
 
 #include "CentralWidget.h"
+#include "BallBoundary.h"
 
 using namespace std;
 
@@ -100,17 +102,34 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
     connect(start_,     &QPushButton::clicked,      this,       &CentralWidget::start);
     connect(simulator_, &Simulator::update_finish,  drawer_,    &Drawer::redraw);
     connect(drawer_,    &Drawer::draw_finish,       this,       &CentralWidget::next);
+    connect(drawer_,    &Drawer::add_boundary,      this,       &CentralWidget::add_boundary);
 }
 
 void CentralWidget::start(){
     simulator_->start();
 }
 
+void CentralWidget::add_boundary(int x, int y, double dx, double dy){
+    qDebug() << "add boundary: " << dx << " " << dy;
+    conditions.push_back(make_shared<BallBoundary>(x, y, dx, dy, color_picker_->getColor()));
+}
+
 void CentralWidget::next(){
+    // update parameter
     parameter_->dt = time_step_slider_->value()*1.0/100;
     parameter_->visc = visc_slider_->value()*1.0/10000000;
     parameter_->diffuse = diffuse_slider_->value()*1.0/10000000;
     parameter_->vorticity = vorticity_slider_->value()*1.0/10000;
     parameter_->dissipation = dissipation_slider_->value()*1.0/100000;
+
+    // update condition
+    while(conditions.size() > 0){
+        conditions.back()->apply_density(simulator_->get_d_source());
+        conditions.back()->apply_velocity(simulator_->get_v_source());
+        qDebug() << simulator_->get_v_source().sum();
+        conditions.pop_back();
+    }
+
     parameter_->draw_finish = true;
+    qDebug() << "finish draw";
 }
