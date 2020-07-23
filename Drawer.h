@@ -11,7 +11,7 @@ class Drawer : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    explicit Drawer(const Field<double, 1>& d_field, QWidget *parent = nullptr);
+    explicit Drawer(const std::vector<Field<double, 1>>& d_field, QWidget *parent = nullptr);
     ~Drawer();
 
 public slots:
@@ -33,8 +33,8 @@ protected:
 signals:
 
 private:
-    const Field<double, 1>& d_field_;
-    Field<double, 1> d_field_buffer_;
+    const std::vector<Field<double, 1>>& d_field_;
+    std::vector<Field<double, 1>> d_field_buffer_;
 };
 
 #endif // DRAWER_H
