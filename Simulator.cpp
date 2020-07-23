@@ -20,12 +20,12 @@ Simulator::Simulator(int width, int height, shared_ptr<Parameter> parameter)
 void Simulator::run(){
     while(!parameter_->should_close){
         while(!parameter_->draw_finish){
-            qDebug() << "waiting";
         }
 
         // v step
         add_source(v_, v_source_, parameter_->dt);
         vorticity_confinement(v_, parameter_->vorticity);
+
         diffuse(v_, parameter_->visc, parameter_->dt);
         Field<double, 2> temp_v = v_;
         advect(v_, temp_v, temp_v, parameter_->dt);

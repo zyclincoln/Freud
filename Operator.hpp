@@ -152,6 +152,24 @@ void set_boundary(Field<T, 2>& ops){
     }
 }
 
+template <typename T>
+void set_free_boundary(Field<T, 1>& ops){
+    int width = ops.get_width(), height = ops.get_height();
+    for(int x = 0; x < width; ++x){
+        ops(x, 0, 0) = ops(x, 1, 0);
+        ops(x, height-1, 0) = ops(x, height-2, 0);
+    }
+    for(int y = 0; y < height; ++y){
+        ops(0, y, 0) = ops(1, y, 0);
+        ops(width-1, y, 0) = ops(width-2, y, 0);
+    }
+
+    ops(0, 0, 0) = 0.5 * (ops(1, 0, 0) + ops(0, 1, 0));
+    ops(0, height-1, 0) = 0.5 * (ops(1, height-1, 0) + ops(0, height-2, 0));
+    ops(width-1, 0, 0) = 0.5 * (ops(width-1, 1, 0) + ops(height-2, 0, 0));
+    ops(width-1, height-1, 0) = 0.5 * (ops(width-2, height-1, 0) + ops(width-1, height-2, 0));
+}
+
 template <typename T, size_t Dim>
 void diffuse(Field<T, Dim>& ops, double df, double dt){
     int width = ops.get_width(), height = ops.get_height();

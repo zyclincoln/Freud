@@ -16,10 +16,10 @@ public:
 
 public slots:
     void redraw(){
-        paintGL();
-        qDebug("finish draw");
-        update();
+        d_field_buffer_ = d_field_;
         emit draw_finish();
+        paintGL();
+        update();
     }
 
 signals:
@@ -34,6 +34,7 @@ signals:
 
 private:
     const Field<double, 1>& d_field_;
+    Field<double, 1> d_field_buffer_;
 };
 
 #endif // DRAWER_H

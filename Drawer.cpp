@@ -38,11 +38,11 @@ void Drawer::paintGL(){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    int yN = d_field_.get_height()-2, xN = d_field_.get_width()-2;
-    int grid_width = 1.f/(xN-2)*this->width(), grid_height = 1.f/(yN-2)*this->height();
+    int yN = d_field_buffer_.get_height(), xN = d_field_buffer_.get_width();
+    double grid_width = 1.f/(xN-2)*this->width(), grid_height = 1.f/(yN-2)*this->height();
     for(int y = 1; y < yN-1; ++y){
         for(int x = 1; x < xN-1; ++x){
-            glColor4d(0.f, d_field_(x, y, 0), d_field_(x, y, 0), 1.f);
+            glColor4d(0.f, d_field_buffer_(x, y, 0), d_field_buffer_(x, y, 0), 1.f);
             glRectf((x-1)*grid_width, (y-1)*grid_height,
                     x*grid_width, y*grid_height);
         }

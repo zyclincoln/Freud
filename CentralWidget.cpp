@@ -1,6 +1,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
+#include <QLabel>
 
 #include "CentralWidget.h"
 
@@ -9,19 +10,19 @@ using namespace std;
 CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 {
     parameter_ = shared_ptr<Parameter>(new Parameter());
-    simulator_ = new Simulator(128, 128, parameter_);
+    simulator_ = new Simulator(130, 130, parameter_);
     drawer_ = new Drawer(simulator_->get_density_field(), this);
 
     start_ = new QPushButton("start");
-    QGroupBox* control_box = new QGroupBox("control", this);
+    QGroupBox* control_box = new QGroupBox("控制 (control)", this);
     QHBoxLayout* control_box_layout = new QHBoxLayout();
     control_box_layout->addWidget(start_);
     control_box->setLayout(control_box_layout);
 
-    use_upwind_ = new QCheckBox("use upwind");
-    use_runge_kutta_ = new QCheckBox("use runge kutta");
+    use_upwind_ = new QCheckBox("上风积分");
+    use_runge_kutta_ = new QCheckBox("龙格库塔积分");
 
-    QGroupBox* integrate_box = new QGroupBox(this);
+    QGroupBox* integrate_box = new QGroupBox("积分方法 (integrate)", this);
     QVBoxLayout* integrate_box_layout = new QVBoxLayout();
     integrate_box_layout->addWidget(use_upwind_);
     integrate_box_layout->addWidget(use_runge_kutta_);
@@ -29,24 +30,60 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 
     color_picker_ = new QPushButton();
 
-    QGroupBox* color_box = new QGroupBox(this);
+    QGroupBox* color_box = new QGroupBox("颜色 (color)",this);
     QVBoxLayout* color_layout = new QVBoxLayout();
     color_layout->addWidget(color_picker_);
     color_box->setLayout(color_layout);
 
     time_step_slider_ = new QSlider(Qt::Horizontal);
-    visc_slider_ = new QSlider(Qt::Horizontal);
-    diffuse_slider_ = new QSlider(Qt::Horizontal);
-    dissipation_slider_ = new QSlider(Qt::Horizontal);
-    vorticity_slider_ = new QSlider(Qt::Horizontal);
+    time_step_slider_->setTickInterval(1);
+    time_step_slider_->setMinimum(1);
+    time_step_slider_->setMaximum(100);
+    // multiplier 100
+    time_step_slider_->setValue(parameter_->dt*100);
 
-    QGroupBox* parameter_box = new QGroupBox(this);
-    QVBoxLayout* parameter_layout = new QVBoxLayout();
-    parameter_layout->addWidget(time_step_slider_);
-    parameter_layout->addWidget(visc_slider_);
-    parameter_layout->addWidget(diffuse_slider_);
-    parameter_layout->addWidget(dissipation_slider_);
-    parameter_layout->addWidget(vorticity_slider_);
+    visc_slider_ = new QSlider(Qt::Horizontal);
+    visc_slider_->setTickInterval(10);
+    visc_slider_->setMinimum(10);
+    visc_slider_->setMaximum(1000);
+    // multiplier 10000000
+    visc_slider_->setValue(parameter_->visc*10000000);
+
+    diffuse_slider_ = new QSlider(Qt::Horizontal);
+    diffuse_slider_->setTickInterval(10);
+    diffuse_slider_->setMinimum(10);
+    diffuse_slider_->setMaximum(1000);
+    // multiplier 10000000
+    diffuse_slider_->setValue(parameter_->diffuse*10000000);
+
+    dissipation_slider_ = new QSlider(Qt::Horizontal);
+    dissipation_slider_->setTickInterval(10);
+    dissipation_slider_->setMinimum(10);
+    dissipation_slider_->setMaximum(1000);
+    // multiplier 100000
+    dissipation_slider_->setValue(parameter_->dissipation*100000);
+
+    vorticity_slider_ = new QSlider(Qt::Horizontal);
+    vorticity_slider_->setTickInterval(10);
+    vorticity_slider_->setMinimum(10);
+    vorticity_slider_->setMaximum(1000);
+    // multiplier 10000
+    vorticity_slider_->setValue(parameter_->vorticity*10000);
+
+    QGroupBox* parameter_box = new QGroupBox("参数 (parameter)", this);
+    QGridLayout* parameter_layout = new QGridLayout();
+    parameter_layout->addWidget(new QLabel("时间步长:"), 0, 0);
+    parameter_layout->addWidget(time_step_slider_, 0, 1, 1, 3);
+    parameter_layout->addWidget(new QLabel("粘度系数:"), 1, 0);
+    parameter_layout->addWidget(visc_slider_, 1, 1, 1, 3);
+    parameter_layout->addWidget(new QLabel("扩散系数:"), 2, 0);
+    parameter_layout->addWidget(diffuse_slider_, 2, 1, 1, 3);
+    parameter_layout->addWidget(new QLabel("消散系数:"), 3, 0);
+    parameter_layout->addWidget(dissipation_slider_, 3, 1, 1, 3);
+    parameter_layout->addWidget(new QLabel("漩涡增强:"), 4, 0);
+    parameter_layout->addWidget(vorticity_slider_, 4, 1, 1, 3);
+    parameter_box->setLayout(parameter_layout);
+    parameter_box->setMinimumWidth(600);
 
     QVBoxLayout* control_layout = new QVBoxLayout();
     control_layout->addWidget(control_box);
@@ -66,9 +103,14 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 }
 
 void CentralWidget::start(){
-    simulator_->run();
+    simulator_->start();
 }
 
 void CentralWidget::next(){
+    parameter_->dt = time_step_slider_->value()*1.0/100;
+    parameter_->visc = visc_slider_->value()*1.0/10000000;
+    parameter_->diffuse = diffuse_slider_->value()*1.0/10000000;
+    parameter_->vorticity = vorticity_slider_->value()*1.0/10000;
+    parameter_->dissipation = dissipation_slider_->value()*1.0/100000;
     parameter_->draw_finish = true;
 }

@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     a.setOrganizationName("zyclincoln");
     a.setApplicationVersion("v0.1");
     Window w;
-
+//    w.resize(1480, 1024);
     w.show();
     return a.exec();
 }

@@ -1,11 +1,12 @@
 #ifndef PARAMETER_H
 #define PARAMETER_H
+#include <QObject>
 
-
-class Parameter
+class Parameter: public QObject
 {
+    Q_OBJECT
 public:
-    Parameter(){}
+    Parameter(QObject* parent = nullptr):QObject(parent){}
     double dt = 0.05;
     double diffuse = 0.00001;
     double visc = 0.00001;
@@ -13,6 +14,11 @@ public:
     double vorticity = 0.02;
     bool should_close = false;
     bool draw_finish = true;
+    bool should_pause = true;
+public slots:
+    void setPause(bool pause){
+        should_pause = pause;
+    }
 };
 
 #endif // PARAMETER_H

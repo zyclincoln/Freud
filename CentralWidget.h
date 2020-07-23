@@ -19,7 +19,7 @@ class CentralWidget : public QWidget
 public:
     explicit CentralWidget(QWidget *parent = nullptr);
     ~CentralWidget(){
-        delete simulator_;
+        simulator_->quit();
     }
 
 public slots:
