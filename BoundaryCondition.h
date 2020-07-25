@@ -13,8 +13,12 @@ public:
 
     }
 
-    virtual void apply_density(std::vector<Field<double, 1>>& d) {};
-    virtual void apply_velocity(Field<double, 2>& v) {};
+    virtual void apply_density(std::vector<Field<double, 1>>& d) {
+        Q_UNUSED(d)
+    };
+    virtual void apply_velocity(Field<double, 2>& v) {
+        Q_UNUSED(v)
+    };
 
 protected:
     int x_, y_;

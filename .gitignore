@@ -1,1 +1,6 @@
 *.user
+.qmake.*
+release/*
+debug/*
+*.vcxproj*
+.vs/*
