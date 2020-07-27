@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QMouseEvent>
+#include <iostream>
 
 #include "Drawer.h"
 
@@ -8,12 +9,19 @@ using namespace std;
 Drawer::Drawer(const vector<Field<double, 1>>& d_field, QWidget *parent) :
     QOpenGLWidget(parent), d_field_(d_field)
 {
-    d_field_buffer_.resize(3);
+    d_field_buffer_ = d_field_;
 }
 
 Drawer::~Drawer()
 {
 
+}
+
+void Drawer::redraw() {
+    d_field_buffer_ = d_field_;
+    emit draw_finish();
+    paintGL();
+    update();
 }
 
 void Drawer::mousePressEvent(QMouseEvent *event){
@@ -23,15 +31,35 @@ void Drawer::mousePressEvent(QMouseEvent *event){
 
 void Drawer::mouseReleaseEvent(QMouseEvent *event){
     record_ = false;
-    QPoint cur_pos = event->pos();
+    //QPoint cur_pos = event->pos();
 
-    // calculate grid
-    int x = cur_pos.x()*1.0/this->width() * d_field_[0].get_width();
-    int y = cur_pos.y()*1.0/this->height() * d_field_[0].get_height();
+    //// calculate grid
+    //int x = cur_pos.x()*1.0/this->width() * d_field_[0].get_width();
+    //int y = cur_pos.y()*1.0/this->height() * d_field_[0].get_height();
 
-    double dx = (cur_pos.x() - last_pos_.x())*1.0/this->width();
-    double dy = (cur_pos.y() - last_pos_.y())*1.0/this->height();
-    emit add_boundary(x, y, dx, dy);
+    ////double dx = (cur_pos.x() - last_pos_.x())*1.0/this->width();
+    ////double dy = (cur_pos.y() - last_pos_.y())*1.0/this->height();
+    //double dx = (last_pos_.x() - cur_pos.x()) * 1.0 / this->width();
+    //double dy = (last_pos_.y() - cur_pos.y()) * 1.0 / this->height();
+    //double r = sqrt(dx * dx + dy * dy);
+    //dx /= r; dy /= r;
+    //emit add_boundary(x, y, dx, dy);
+}
+
+void Drawer::mouseMoveEvent(QMouseEvent* event)
+{
+    if (record_) {
+        QPoint cur_pos = event->pos();
+        int x = cur_pos.x() * 1.0 / this->width() * d_field_[0].get_width();
+        int y = cur_pos.y() * 1.0 / this->height() * d_field_[0].get_height();
+        double dx = (last_pos_.x() - cur_pos.x()) * 1.0 / this->width();
+        double dy = (last_pos_.y() - cur_pos.y()) * 1.0 / this->height();
+        double r = sqrt(dx * dx + dy * dy);
+        dx /= r; dy /= r;
+
+        last_pos_ = cur_pos;
+        emit add_boundary(x, y, dx, dy);
+    }
 }
 
 QSize Drawer::minimumSizeHint() const
@@ -60,7 +88,7 @@ void Drawer::paintGL(){
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     int yN = d_field_buffer_[0].get_height(), xN = d_field_buffer_[0].get_width();
-    double grid_width = 1.f/(xN-2)*this->width(), grid_height = 1.f/(yN-2)*this->height();
+    double grid_width = 1.0/(xN-2)*this->width(), grid_height = 1.0/(yN-2)*this->height();
     for(int y = 1; y < yN-1; ++y){
         for(int x = 1; x < xN-1; ++x){
             glColor4d(d_field_buffer_[0](x, y, 0),

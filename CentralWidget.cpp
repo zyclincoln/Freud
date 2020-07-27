@@ -3,6 +3,7 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QDebug>
+#include <iostream>
 
 #include "CentralWidget.h"
 #include "BallBoundary.h"
@@ -23,7 +24,8 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 
     use_upwind_ = new QCheckBox("上风积分");
     use_runge_kutta_ = new QCheckBox("龙格库塔积分");
-
+    use_upwind_->setDisabled(true);
+    
     QGroupBox* integrate_box = new QGroupBox("积分方法 (integrate)", this);
     QVBoxLayout* integrate_box_layout = new QVBoxLayout();
     integrate_box_layout->addWidget(use_upwind_);
@@ -110,7 +112,6 @@ void CentralWidget::start(){
 }
 
 void CentralWidget::add_boundary(int x, int y, double dx, double dy){
-    qDebug() << "add boundary: " << dx << " " << dy;
     conditions.push_back(make_shared<BallBoundary>(x, y, dx, dy, color_picker_->getColor()));
 }
 
@@ -121,15 +122,12 @@ void CentralWidget::next(){
     parameter_->diffuse = diffuse_slider_->value()*1.0/10000000;
     parameter_->vorticity = vorticity_slider_->value()*1.0/10000;
     parameter_->dissipation = dissipation_slider_->value()*1.0/100000;
-
+    parameter_->use_rk4 = use_runge_kutta_->isChecked();
     // update condition
     while(conditions.size() > 0){
         conditions.back()->apply_density(simulator_->get_d_source());
         conditions.back()->apply_velocity(simulator_->get_v_source());
-        qDebug() << simulator_->get_v_source().sum();
         conditions.pop_back();
     }
-
     parameter_->draw_finish = true;
-    qDebug() << "finish draw";
 }

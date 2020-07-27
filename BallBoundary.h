@@ -10,7 +10,7 @@ public:
     virtual void apply_density(std::vector<Field<double, 1> > &d) override;
     virtual void apply_velocity(Field<double, 2> &v) override;
 private:
-    int r_ = 10;
+    int r_ = 5;
 };
 
 #endif // BALLBOUNDARY_H

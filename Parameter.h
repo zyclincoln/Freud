@@ -12,8 +12,9 @@ public:
     double visc = 0.00001;
     double dissipation = 0.005;
     double vorticity = 0.02;
-    bool should_close = false;
-    bool draw_finish = true;
+    volatile bool use_rk4 = false;
+    volatile bool should_close = false;
+    volatile bool draw_finish = true;
     bool should_pause = true;
 public slots:
     void setPause(bool pause){

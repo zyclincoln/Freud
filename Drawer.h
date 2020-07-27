@@ -16,12 +16,7 @@ public:
     ~Drawer();
 
 public slots:
-    void redraw(){
-        d_field_buffer_ = d_field_;
-        emit draw_finish();
-        paintGL();
-        update();
-    }
+    void redraw();
 
 signals:
     void draw_finish();
@@ -33,6 +28,7 @@ protected:
     void paintGL() override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
     const std::vector<Field<double, 1>>& d_field_;

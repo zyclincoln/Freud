@@ -117,12 +117,24 @@ template <typename T>
 void set_boundary(Field<T, 1>& ops){
     int width = ops.get_width(), height = ops.get_height();
     for(int x = 0; x < width; ++x){
-        ops(x, 0, 0) = ops(x, 1, 0);
-        ops(x, height-1, 0) = ops(x, height-2, 0);
+        if (ops(x, 0, 0) == 0) {
+            ops(x, 0, 0) = ops(x, 1, 0);
+            ops(x, height - 1, 0) = ops(x, height - 2, 0);
+        }
+        else {
+            swap(ops(x, 0, 0), ops(x, 1, 0));
+            swap(ops(x, height - 1, 0), ops(x, height - 2, 0));
+        }
     }
     for(int y = 0; y < height; ++y){
-        ops(0, y, 0) = ops(1, y, 0);
-        ops(width-1, y, 0) = ops(width-2, y, 0);
+        if (ops(0, y, 0) == 0) {
+            ops(0, y, 0) = ops(1, y, 0);
+            ops(width - 1, y, 0) = ops(width - 2, y, 0);
+        }
+        else {
+            swap(ops(0, y, 0), ops(1, y, 0));
+            swap(ops(width - 1, y, 0), ops(width - 2, y, 0));
+        }
     }
 
     ops(0, 0, 0) = 0.5 * (ops(1, 0, 0) + ops(0, 1, 0));
@@ -195,6 +207,55 @@ void diffuse(Field<T, Dim>& ops, double df, double dt){
 }
 
 template <typename T, size_t Dim>
+void advect_rk4(Field<T, Dim> & target, Field<T, Dim>& source, Field<T, 2>& driver, double dt) {
+    int width = source.get_width(), height = source.get_height();
+    dt = dt * width;
+    for (int y = 1; y < height - 1; ++y) {
+        for (int x = 1; x < width - 1; ++x) {
+            // k1
+            double k1_x = driver(x, y, 0), k1_y = driver(x, y, 1);
+            // k2
+            double pos2_x = x - 0.5 * dt * driver(x, y, 0),
+                   pos2_y = y - 0.5 * dt * driver(x, y, 1);
+            double k2_x = driver.interp(pos2_x, pos2_y, 0), 
+                   k2_y = driver.interp(pos2_x, pos2_y, 1);
+            // k3
+            double pos3_x = x - 0.75 * dt * driver.interp(k2_x, k2_y, 0),
+                   pos3_y = y - 0.75 * dt * driver.interp(k2_x, k2_y, 1);
+            double k3_x = driver.interp(pos3_x, pos3_y, 0), 
+                   k3_y = driver.interp(pos3_x, pos3_y, 1);
+            // integrate
+            double kx = x - 2.0 / 9 * dt * k1_x - 1.0 / 3 * dt * k2_x - 4.0 / 9 * dt * k3_x;
+            double ky = y - 2.0 / 9 * dt * k1_y - 1.0 / 3 * dt * k2_y - 4.0 / 9 * dt * k3_y;
+            for (int d = 0; d < Dim; ++d) {
+                target(x, y, d) = source.interp(kx, ky, d);
+            }
+        }
+    }
+    set_boundary(target);
+}
+
+template <typename T, size_t Dim>
+void advect1(Field<T, Dim>& target, Field<T, Dim>& source, Field<T, 2>& driver, double dt) {
+    int width = source.get_width(), height = source.get_height();
+    dt = dt * width;
+    for (int y = 1; y < height - 1; ++y) {
+        for (int x = 1; x < width - 1; ++x) {
+            // k1
+            double k1_x = driver(x, y, 0), k1_y = driver(x, y, 1);
+           // integrate
+            double kx = x - dt * k1_x;
+            double ky = y - dt * k1_y;
+            for (int d = 0; d < Dim; ++d) {
+                target(x, y, d) = source.interp(kx, ky, d);
+            }
+        }
+    }
+    set_boundary(target);
+}
+
+
+template <typename T, size_t Dim>
 void advect(Field<T, Dim>& target, Field<T, Dim>& source, Field<T, 2>& driver, double dt){
     int i0, i1, j0, j1;
     double rx0, rx1, ry0, ry1;
@@ -223,7 +284,7 @@ void advect(Field<T, Dim>& target, Field<T, Dim>& source, Field<T, 2>& driver, d
 template <typename T>
 void divergence(Field<T, 2>& ops, Field<T, 1>& div){
     int width = ops.get_width(), height = ops.get_height();
-    double h = 1.0 / (width-2);
+    double h = 1.0 / (width-2.0);
     for(int y = 1; y < height-1; ++y){
         for(int x = 1; x < width-1; ++x){
             div(x, y, 0) = -0.5 * h * (ops(x+1, y, 0) - ops(x-1, y, 0) + ops(x, y+1, 1) - ops(x, y-1, 1));
@@ -235,7 +296,7 @@ void divergence(Field<T, 2>& ops, Field<T, 1>& div){
 template <typename T>
 void project(Field<T, 2>& ops){
     int width = ops.get_width(), height = ops.get_height();
-    double ratio = width-2;
+    double ratio = width-2.0;
 
     Field<T, 1> div(width, height);
     divergence(ops, div);
