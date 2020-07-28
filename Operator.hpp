@@ -9,6 +9,11 @@
 #define OPERATOR_HPP
 #include <functional>
 #include <QDebug>
+#include <omp.h>
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/IterativeLinearSolvers>
+#include <Eigen/Sparse>
 
 #include "Field.h"
 
@@ -16,6 +21,8 @@ template<typename T>
 void curl2D(const Field<T, 2>& ops, Field<T, 1>& res){
     T grid_size = 1.0 / ops.get_height();
     int xN = ops.get_width(), yN = ops.get_height();
+    
+    #pragma omp parallel for
     for(int y = 1; y < yN-1; ++y){
         for(int x = 1; x < xN - 1; ++x){
             res(x, y, 0) = ((ops(x+1, y, 1) - ops(x-1, y, 1))-(ops(x, y+1, 0) - ops(x, y-1, 0)))/(2*grid_size);
@@ -26,6 +33,8 @@ void curl2D(const Field<T, 2>& ops, Field<T, 1>& res){
 template<typename T, size_t Dim>
 void normalize(const Field<T, Dim>& ops, Field<T, Dim>& res){
     int xN = ops.get_width(), yN = ops.get_height();
+
+#pragma omp parallel for
     for(int y = 0; y < yN; ++y){
         for(int x = 0; x < xN; ++x){
             T denom = 0;
@@ -61,6 +70,8 @@ template<typename T>
 void gradient(const Field<T, 1>& ops, Field<T, 2>& res){
     T grid_size = 1.0 / ops.get_height();
     int xN = ops.get_width(), yN = ops.get_height();
+
+#pragma omp parallel for
     for(int y = 1; y < yN-1; ++y){
         for(int x = 1; x < xN-1; ++x){
             res(x, y, 0) = (ops(x+1, y, 0) - ops(x-1, y, 0)) * 0.5 / grid_size;
@@ -83,6 +94,7 @@ void vorticity_confinement(Field<T, 2>& u, double ratio){
     gradient(norm_w, gra);
     normalize(gra, gra);
 
+#pragma omp parallel for
     for(int y = 1; y < height-1; ++y){
         for(int x = 1; x < width-1; ++x){
             u(x, y, 0) += ratio * grid_size * gra(x, y, 1) * w(x, y, 0);
@@ -94,6 +106,8 @@ void vorticity_confinement(Field<T, 2>& u, double ratio){
 template <typename T, size_t Dim>
 void add_source(Field<T, Dim>& target, Field<T, Dim>& source, double dt){
     Q_UNUSED(dt)
+
+#pragma omp parallel for
     for(int d = 0; d < Dim; ++d){
         for(int i = 0; i < target.get_size(); ++i){
             target(i, d) += source(i, d);
@@ -103,6 +117,7 @@ void add_source(Field<T, Dim>& target, Field<T, Dim>& source, double dt){
 
 template <typename T, size_t Dim>
 void dissipate(Field<T, Dim>& ops, double ratio){
+
     for(int d = 0; d < Dim; ++d){
         for(int i = 0; i < ops.get_size(); ++i){
             ops(i, d) = ops(i, d) / (1+ratio);
@@ -207,9 +222,27 @@ void diffuse(Field<T, Dim>& ops, double df, double dt){
 }
 
 template <typename T, size_t Dim>
+void diffuse(Field<T, Dim>& ops, Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper>& cg_) {
+    T* raw = ops.get_raw();
+    Field<T, Dim> temp(ops.get_width(), ops.get_height());
+
+    for (int d = 0; d < Dim; ++d) {
+        Eigen::VectorXd p, b;
+        b = Eigen::Map<Eigen::VectorXd>(raw + d * ops.get_width() * ops.get_height(), ops.get_width() * ops.get_height());
+        p = cg_.solve(b);
+        qDebug() << "iteration: " << cg_.iterations();
+        qDebug() << "error: " << cg_.error();
+        copy( p.data(), p.data() + temp.get_width()*temp.get_height(), temp.get_raw() + d * temp.get_width() * temp.get_height());
+    }
+    ops = std::move(temp);
+}
+
+template <typename T, size_t Dim>
 void advect_rk4(Field<T, Dim> & target, Field<T, Dim>& source, Field<T, 2>& driver, double dt) {
     int width = source.get_width(), height = source.get_height();
     dt = dt * width;
+
+#pragma omp parallel for
     for (int y = 1; y < height - 1; ++y) {
         for (int x = 1; x < width - 1; ++x) {
             // k1
@@ -285,6 +318,8 @@ template <typename T>
 void divergence(Field<T, 2>& ops, Field<T, 1>& div){
     int width = ops.get_width(), height = ops.get_height();
     double h = 1.0 / (width-2.0);
+
+#pragma omp parallel for
     for(int y = 1; y < height-1; ++y){
         for(int x = 1; x < width-1; ++x){
             div(x, y, 0) = -0.5 * h * (ops(x+1, y, 0) - ops(x-1, y, 0) + ops(x, y+1, 1) - ops(x, y-1, 1));
@@ -313,6 +348,7 @@ void project(Field<T, 2>& ops){
         set_boundary(pressure);
     }
 
+#pragma omp parallel for
     for(int y = 1; y < height-1; ++y){
         for(int x = 1; x < width-1; ++x){
             ops(x, y, 0) -= 0.5 * ratio * (pressure(x+1, y, 0) - pressure(x-1, y, 0));

@@ -5,6 +5,8 @@
 #include <memory>
 #include <QThread>
 
+#include "Eigen/IterativeLinearSolvers"
+
 #include "Parameter.h"
 #include "Field.h"
 
@@ -31,6 +33,7 @@ signals:
 
 private:
     int frame_count_ = 0;
+    const int w_, h_;
 
     Field<double, 2> v_;
     std::vector<Field<double, 1>> d_;
@@ -39,6 +42,10 @@ private:
 
     Field<double, 2> v_source_;
     std::vector<Field<double, 1>> d_source_;
+
+    // predecomposed poisson matrix
+    Eigen::SparseMatrix<double> A_;
+    Eigen::ConjugateGradient < Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> cg_;
 };
 
 #endif // SIMULATOR_H

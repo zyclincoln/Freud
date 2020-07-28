@@ -19,6 +19,10 @@ public:
         return std::accumulate(data_.begin(), data_.end(), 0.);
     }
 
+    T* get_raw() {
+        return data_.data();
+    }
+
     inline
     T operator()(int x, int y, int dim) const {
         return data_[dim * wh_ + y * w_ + x];

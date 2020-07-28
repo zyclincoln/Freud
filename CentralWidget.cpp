@@ -13,7 +13,7 @@ using namespace std;
 CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 {
     parameter_ = shared_ptr<Parameter>(new Parameter());
-    simulator_ = new Simulator(130, 130, parameter_);
+    simulator_ = new Simulator(300, 300, parameter_);
     drawer_ = new Drawer(simulator_->get_density_field(), this);
 
     start_ = new QPushButton("start");

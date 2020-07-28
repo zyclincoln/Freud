@@ -2,11 +2,9 @@
 #define PARAMETER_H
 #include <QObject>
 
-class Parameter: public QObject
+class Parameter
 {
-    Q_OBJECT
 public:
-    Parameter(QObject* parent = nullptr):QObject(parent){}
     double dt = 0.05;
     double diffuse = 0.00001;
     double visc = 0.00001;
@@ -16,10 +14,6 @@ public:
     volatile bool should_close = false;
     volatile bool draw_finish = true;
     bool should_pause = true;
-public slots:
-    void setPause(bool pause){
-        should_pause = pause;
-    }
 };
 
 #endif // PARAMETER_H
