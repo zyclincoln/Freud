@@ -230,8 +230,6 @@ void diffuse(Field<T, Dim>& ops, Eigen::ConjugateGradient<Eigen::SparseMatrix<do
         Eigen::VectorXd p, b;
         b = Eigen::Map<Eigen::VectorXd>(raw + d * ops.get_width() * ops.get_height(), ops.get_width() * ops.get_height());
         p = cg_.solve(b);
-        qDebug() << "iteration: " << cg_.iterations();
-        qDebug() << "error: " << cg_.error();
         copy( p.data(), p.data() + temp.get_width()*temp.get_height(), temp.get_raw() + d * temp.get_width() * temp.get_height());
     }
     ops = std::move(temp);

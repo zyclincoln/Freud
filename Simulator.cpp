@@ -42,7 +42,7 @@ void Simulator::run(){
                 triplets.emplace_back(pos, pos + 1, -scale);
                 accu++;
             }
-            triplets.emplace_back(pos, pos, 4 * accu);
+            triplets.emplace_back(pos, pos, accu * scale + 1);
         }
     }
     A_.resize(w_*h_, w_*h_);
@@ -78,7 +78,6 @@ void Simulator::run(){
             d_source_[i].clear();
 
             diffuse(d_[i], cg_);
-            //diffuse(d_[i], parameter_->diffuse, parameter_->dt);
             Field<double, 1> temp_d = d_[i];
             if (parameter_->use_rk4) {
                 advect_rk4(d_[i], temp_d, v_, parameter_->dt);

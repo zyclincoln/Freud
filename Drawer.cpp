@@ -89,14 +89,19 @@ void Drawer::paintGL(){
 
     int yN = d_field_buffer_[0].get_height(), xN = d_field_buffer_[0].get_width();
     double grid_width = 1.0/(xN-2)*this->width(), grid_height = 1.0/(yN-2)*this->height();
+    glBegin(GL_TRIANGLES);
     for(int y = 1; y < yN-1; ++y){
         for(int x = 1; x < xN-1; ++x){
             glColor3f(d_field_buffer_[0](x, y, 0),
                       d_field_buffer_[1](x, y, 0),
                       d_field_buffer_[2](x, y, 0));
-
-            glRectf((x-1)*grid_width, (y-1)*grid_height,
-                    x*grid_width, y*grid_height);
+            glVertex2f((x - 1) * grid_width, (y - 1) * grid_height);
+            glVertex2f((x - 1) * grid_width, y * grid_height);
+            glVertex2f(x * grid_width, (y - 1) * grid_height);
+            glVertex2f((x - 1) * grid_width, y * grid_height);
+            glVertex2f(x * grid_width, (y - 1) * grid_height);
+            glVertex2f(x * grid_width, y * grid_height);
         }
     }
+    glEnd();
 }
