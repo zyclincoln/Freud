@@ -327,20 +327,22 @@ void divergence(Field<T, 2>& ops, Field<T, 1>& div){
 }
 
 template <typename T>
-void project(Field<T, 2>& ops){
+void project(Field<T, 2>& ops, double dt, double rho){
     int width = ops.get_width(), height = ops.get_height();
     double ratio = width-2.0;
 
     Field<T, 1> div(width, height);
     divergence(ops, div);
 
+    double scale = dt / width / rho;
+
     Field<T, 1> pressure(width, height);
     // Gauss-Seidel Iteration
     for(int i = 0; i < 30; ++i){
         for(int y = 1; y < height-1; ++y){
             for(int x = 1; x < width-1; ++x){
-                pressure(x, y, 0) = (div(x, y, 0) + pressure(x+1, y, 0) + pressure(x-1, y, 0) +
-                                     pressure(x, y+1, 0) + pressure(x, y-1, 0))/4;
+                pressure(x, y, 0) = (div(x, y, 0) + (pressure(x+1, y, 0) + pressure(x-1, y, 0) +
+                                     pressure(x, y+1, 0) + pressure(x, y-1, 0)))/4;
             }
         }
         set_boundary(pressure);

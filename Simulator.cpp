@@ -70,7 +70,7 @@ void Simulator::run(){
         else {
             advect(v_, temp_v, temp_v, parameter_->dt);
         }
-        project(v_);
+        project(v_, parameter_->dt, 1);
 
         // d step
         for(size_t i = 0; i < d_.size(); ++i){
