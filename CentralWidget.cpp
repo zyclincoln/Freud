@@ -115,8 +115,8 @@ void CentralWidget::start(){
     diffuse_slider_->setDisabled(true);
 }
 
-void CentralWidget::add_boundary(int x, int y, double dx, double dy){
-    conditions.push_back(make_shared<BallBoundary>(x, y, dx, dy, color_picker_->getColor()));
+void CentralWidget::add_boundary(QPoint last, QPoint cur, int w, int h){
+    conditions.push_back(make_shared<BallBoundary>(last, cur, color_picker_->getColor(), w, h));
 }
 
 void CentralWidget::next(){

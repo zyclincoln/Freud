@@ -28,7 +28,7 @@ public:
 public slots:
     void start();
     void next();
-    void add_boundary(int x, int y, double dx, double dy);
+    void add_boundary(QPoint last, QPoint cur, int w, int h);
 signals:
 
 

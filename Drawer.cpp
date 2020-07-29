@@ -19,13 +19,22 @@ Drawer::~Drawer()
 
 void Drawer::redraw() {
     d_field_buffer_ = d_field_;
+    int winX = this->mapFromGlobal(QCursor::pos()).x();
+    int winY = this->mapFromGlobal(QCursor::pos()).y();
+    if (record_) {
+        QPoint cur_pos(winX, winY);
+        emit add_boundary(last_pos_, cur_pos, this->width(), this->height());
+        last_pos_ = cur_pos;
+    }
+
     emit draw_finish();
     paintGL();
     update();
 }
 
 void Drawer::mousePressEvent(QMouseEvent *event){
-    last_pos_ = event->pos();
+    //last_pos_ = event->pos();
+    QPoint last_pos_ = event->pos();
     record_ = true;
 }
 
@@ -48,18 +57,18 @@ void Drawer::mouseReleaseEvent(QMouseEvent *event){
 
 void Drawer::mouseMoveEvent(QMouseEvent* event)
 {
-    if (record_) {
-        QPoint cur_pos = event->pos();
-        int x = cur_pos.x() * 1.0 / this->width() * d_field_[0].get_width();
-        int y = cur_pos.y() * 1.0 / this->height() * d_field_[0].get_height();
-        double dx = (last_pos_.x() - cur_pos.x()) * 1.0 / this->width();
-        double dy = (last_pos_.y() - cur_pos.y()) * 1.0 / this->height();
-        double r = sqrt(dx * dx + dy * dy);
-        dx /= r; dy /= r;
+    //if (record_) {
+    //    QPoint cur_pos = event->pos();
+    //    int x = cur_pos.x() * 1.0 / this->width() * d_field_[0].get_width();
+    //    int y = cur_pos.y() * 1.0 / this->height() * d_field_[0].get_height();
+    //    double dx = (last_pos_.x() - cur_pos.x()) * 1.0 / this->width();
+    //    double dy = (last_pos_.y() - cur_pos.y()) * 1.0 / this->height();
+    //    double r = sqrt(dx * dx + dy * dy);
+    //    dx /= r; dy /= r;
 
-        last_pos_ = cur_pos;
-        emit add_boundary(x, y, dx, dy);
-    }
+    //    last_pos_ = cur_pos;
+    //    emit add_boundary(x, y, dx, dy);
+    //}
 }
 
 QSize Drawer::minimumSizeHint() const

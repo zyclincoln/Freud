@@ -1,15 +1,17 @@
 #ifndef BOUNDARYCONDITION_H
 #define BOUNDARYCONDITION_H
 #include <QColor>
+#include <QPoint>
 #include "Field.h"
 
 class BoundaryCondition
 {
 public:
-    BoundaryCondition(const int x, const int y,
-                      const double dx, const double dy,
-                      const QColor& color):
-        x_(x), y_(y), dx_(dx), dy_(dy), color_(color){
+    BoundaryCondition(const QPoint last,
+                      const QPoint cur,
+                      const QColor& color,
+                      const int w, const int h):
+        last_(last), cur_(cur), color_(color), w_(w), h_(h){
 
     }
 
@@ -21,8 +23,8 @@ public:
     };
 
 protected:
-    int x_, y_;
-    double dx_, dy_;
+    QPoint last_, cur_;
+    int w_, h_;
     QColor color_;
 };
 
