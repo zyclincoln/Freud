@@ -25,12 +25,13 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
     use_upwind_ = new QCheckBox("上风积分");
     use_runge_kutta_ = new QCheckBox("龙格库塔积分");
     use_upwind_->setDisabled(true);
+    use_runge_kutta_->setChecked(true);
     
-    QGroupBox* integrate_box = new QGroupBox("积分方法 (integrate)", this);
-    QVBoxLayout* integrate_box_layout = new QVBoxLayout();
-    integrate_box_layout->addWidget(use_upwind_);
-    integrate_box_layout->addWidget(use_runge_kutta_);
-    integrate_box->setLayout(integrate_box_layout);
+    //QGroupBox* integrate_box = new QGroupBox("积分方法 (integrate)", this);
+    //QVBoxLayout* integrate_box_layout = new QVBoxLayout();
+    //integrate_box_layout->addWidget(use_upwind_);
+    //integrate_box_layout->addWidget(use_runge_kutta_);
+    //integrate_box->setLayout(integrate_box_layout);
 
     color_picker_ = new ColorPicker();
 
@@ -91,7 +92,7 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 
     QVBoxLayout* control_layout = new QVBoxLayout();
     control_layout->addWidget(control_box);
-    control_layout->addWidget(integrate_box);
+    //control_layout->addWidget(integrate_box);
     control_layout->addWidget(color_box);
     control_layout->addWidget(parameter_box);
 
@@ -109,6 +110,9 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 
 void CentralWidget::start(){
     simulator_->start();
+    start_->setDisabled(true);
+    time_step_slider_->setDisabled(true);
+    diffuse_slider_->setDisabled(true);
 }
 
 void CentralWidget::add_boundary(int x, int y, double dx, double dy){
